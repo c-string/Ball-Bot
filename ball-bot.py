@@ -1,8 +1,15 @@
 import discord
 import asyncio
+import re
+import csvt
 from random import randint
 
+# creates a bot object that has access to Discord's events
 bot = discord.Client()
+
+#--------------------------------------------
+# Events 
+#--------------------------------------------
 
 @bot.event
 @asyncio.coroutine
@@ -16,52 +23,70 @@ def on_ready():
     print('Login succesful')
     print("Bot username: %s" % bot.user.name)
     print("Bot id: %s" % bot.user.id)
-    print('------')
+    print('------------------')
     channel = discord.Object(id='channel_id')
     yield from bot.send_message(channel,'Ohayou!')
 
 @bot.event
 @asyncio.coroutine
 def on_message(message):
+    msg_content = message.content
 
+    # User responses
     if message.author == bot.user:
         # prevents the bot from responding to itself
         return
-
-    if (message.content == 'ping'):
-        if (message.author.id == 'author_id'):
-            # BEEEEEES message
+      
+    if (message.content.lower() == 'ping'):
+        if (message.author.id == 'specific_user_id'):
             msg = '{0.author.mention} gnop!'.format(message)
             yield from bot.send_message(message.channel, msg)
         else:
             # other people
-            msg = ('{0.author.mention} %s' % Random_Message()).format(message)
+            msg = ('{0.author.mention} %s' % Random_Message(bot.r_response_list)).format(message)
             yield from bot.send_message(message.channel, msg)
 
-    if "literally" in message.content:
-        # responds if a message contains a substring
-        yield from bot.send_message(message.channel, 'literally')
-
-    # admin commands
+    if (re.match('snek\,? (should|would|could|can|will|did|do|are|is|was|am|does|what|have)[\,\ ]? (.+)', message.content.lower())):
+            # magic eight ball check
+            msg = ('{0.author.mention}, %s' % Random_Message(bot.eight_ball_response_list)).format(message)
+            yield from bot.send_message(message.channel, msg)
+            
+    # Substring responses
+    for key, value in bot.substring_list.items():
+        if key in msg_content.lower():
+            # checks if the key is in the input string
+            yield from bot.send_message(message.channel, value)
+            break
+            
+    # Admin commands
     # commands in this section should only be executed if called by a specific user (hopefully the bot's owner)
     if (message.author.id == 'admin_id'):
         if (message.content == '!kill'):
             # disconnects fromt the discord server and ends the script
             yield from bot.send_message(message.channel, 'Oyasumi!')
             yield from bot.close()
-            exit()
+            exit()   
+        elif (message.content == '!reload'):
+            bot.substring_list = csvt.CSV_To_Dict('responses.csv')
+            bot.r_response_list = csvt.CSV_To_List('ping_responses.csv')
+            bot.eight_ball_response_list = csvt.CSV_To_List('eight_ball_responses.csv')
 
-def Random_Message():
-    # pulls a random response from a list and returns it as a string
-    # since randint uses the list length as the max value, added more repsonses involves simply adding strings to the list
-    # and restarting the script
-    r_response_list = ['reponse_1', 'reponse_2', 'reponse_3', 'response_4', 'reponse_5']
-    random = randint(0,(len(r_response_list)-1))
-    return r_response_list[random]
-
+def Random_Message(response_list):
+    # pulls a random response from the global list and returns it as a string
+    random = randint(0,(len(response_list)-1))
+    return response_list[random]
+ 
 def main():
-    # bot token, do not change this
-    # this allows the bot to login to the discord server
+    print('\nLoading scripts...')
+    bot.r_response_list = csvt.CSV_To_List('ping_responses.csv')
+
+    # dict of users that can be used for getting specific responses to specific users
+    bot.eight_ball_response_list = csvt.CSV_To_List('eight_ball_responses.csv')
+
+    # dict of substrings that the bot can respond to
+    bot.substring_list = csvt.CSV_To_Dict('responses.csv')
+    print('\nAttempting to log in...')
+    # Bot token, do not change this. This allows the bot to login to the discord server
     bot.run("bot_token")
 
 main()
