@@ -27,4 +27,6 @@ Causes the bot to disconnect and the script to exit. This can only be executed i
 rereads the script files and updates the structures the bot stores them in. This is useful if you want to add or remove responses without restarting the whole bot.
 
 ## Other helpful things
-The discord.py documention might be useful if you want to contribute: https://discordpy.readthedocs.io/en/latest/
+Some of these links might be helpful if you want to contribute or work on the bot yourself.
+The discord.py documention: https://discordpy.readthedocs.io/en/latest/
+The official documentation for the discord api: https://discordapp.com/developers/docs/intro
