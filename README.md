@@ -28,5 +28,6 @@ rereads the script files and updates the structures the bot stores them in. This
 
 ## Other helpful things
 Some of these links might be helpful if you want to contribute or work on the bot yourself.
+
 The discord.py documention: https://discordpy.readthedocs.io/en/latest/
 The official documentation for the discord api: https://discordapp.com/developers/docs/intro
